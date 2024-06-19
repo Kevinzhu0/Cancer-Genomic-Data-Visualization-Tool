@@ -13,8 +13,9 @@ df = pd.read_csv('dataset/Cleaned_BRCA_Merged_Data.csv')  # 替换为你实际�
 
 app.layout = dbc.Container([
     dbc.Row([
-        dbc.Col(html.H1("Cancer Genomic Data Visualization Tool", className="text-center"), className="mb-5 mt-5")
-    ]),
+        dbc.Col(html.Img(src='assets/logo.png', height='60px'), width="auto"),
+        dbc.Col(html.H1("Cancer Genomic Data Visualization Tool", className="text-center"), className="mb-5 mt-3")
+    ], align="center"),
     dbc.Row([
         dbc.Col([
             html.Label('Select Visualization:'),
