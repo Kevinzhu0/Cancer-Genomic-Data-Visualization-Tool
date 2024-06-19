@@ -26,13 +26,26 @@ app.layout = dbc.Container([
     ], align="center"),
     dbc.Row([
         dbc.Col([
-            html.Label('Select Visualization:'),
+            html.Label('Select Visualization:', style={'margin-bottom': '15px'}),
             dcc.Dropdown(
                 id='visualization-dropdown',
                 options=visualization_options,
                 value=[option['value'] for option in visualization_options],  # 默认全选
                 multi=True,
-                className='mt-3'
+                className='mt-3',
+                style={'margin-bottom': '30px'}
+            ),
+            html.Label('Number of figures per row:', style={'margin-bottom': '15px'}),
+            dcc.Dropdown(
+                id='figures-per-row-dropdown',
+                options=[
+                    {'label': '1', 'value': 1},
+                    {'label': '2', 'value': 2}
+                ],
+                value=2,
+                multi=False,
+                className='mt-3',
+                style={'margin-bottom': '30px'}
             ),
         ], width=3),
         dbc.Col([
@@ -45,9 +58,10 @@ app.layout = dbc.Container([
 # 生成图像的回调函数
 @app.callback(
     Output('visualization-rows', 'children'),
-    [Input('visualization-dropdown', 'value')]
+    [Input('visualization-dropdown', 'value'),
+     Input('figures-per-row-dropdown', 'value')]
 )
-def update_graphs(selected_vis):
+def update_graphs(selected_vis, figures_per_row):
     if df.empty:
         return []
 
@@ -85,12 +99,13 @@ def update_graphs(selected_vis):
             bar_fig.update_layout(xaxis_title='Mutation Type', yaxis_title='Count')
             figs.append(bar_fig)
 
-    # 根据图像数量生成行和列布局
+    # 根据图像数量和用户选择生成行和列布局
     rows = []
-    for i in range(0, len(figs), 2):
+    for i in range(0, len(figs), figures_per_row):
         row = dbc.Row([
-            dbc.Col(dcc.Graph(figure=figs[i]), width=6) if i < len(figs) else None,
-            dbc.Col(dcc.Graph(figure=figs[i + 1]), width=6) if i + 1 < len(figs) else None
+            dbc.Col(dcc.Graph(figure=figs[i]), width=int(12 / figures_per_row)) if i < len(figs) else None,
+            dbc.Col(dcc.Graph(figure=figs[i + 1]), width=int(12 / figures_per_row)) if i + 1 < len(
+                figs) and figures_per_row > 1 else None
         ])
         rows.append(row)
 
