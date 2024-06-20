@@ -24,11 +24,11 @@ def create_logo():
         ax.add_artist(small_circle)
 
     # Add the text
-    ax.text(4, 2, 'GENOVAI', fontsize=40, ha='left', va='center', fontweight='bold', color='black')
+    ax.text(4, 2, 'GenoVAI', fontsize=40, ha='left', va='center', fontweight='bold', color='black')
     ax.text(4, 1, 'Cancer Genomic Data Visualization', fontsize=20, ha='left', va='center', color='black')
 
     # Save the figure
-    plt.savefig('assets/GENOVAI_logo.png', dpi=300, bbox_inches='tight', pad_inches=0.1)
+    plt.savefig('assets/GenoVAI_logo.png', dpi=300, bbox_inches='tight', pad_inches=0.1)
     plt.show()
 
 

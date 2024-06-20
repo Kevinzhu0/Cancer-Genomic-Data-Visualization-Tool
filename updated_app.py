@@ -7,7 +7,7 @@ import plotly.express as px
 
 # 初始化Dash应用程序
 app = dash.Dash(__name__, external_stylesheets=[dbc.themes.BOOTSTRAP])
-
+app.title = "GenoVAI"
 # 读取项目中的癌症数据文件
 df = pd.read_csv('dataset/Cleaned_BRCA_Merged_Data.csv')  # 替换为你实际的数据文件路径
 
@@ -20,34 +20,56 @@ visualization_options = [
 ]
 
 app.layout = dbc.Container([
+    # 顶部Logo和标题区域
     dbc.Row([
-        dbc.Col(html.Img(src='assets/logo.png', height='60px'), width="auto"),
-        dbc.Col(html.H1("Cancer Genomic Data Visualization Tool", className="text-center"), className="mb-5 mt-3")
-    ], align="center"),
+        dbc.Col(html.Img(src='assets/GENOVAI Logo.png', height='80px'), width="auto"),
+        dbc.Col(html.H1("Cancer Genomic Data Visualization Tool", style={'fontSize': '18px', 'margin': '0'}), width=9),
+    ], align="center", className="mb-4"),
+
+    # 主体内容区域
     dbc.Row([
+        # 左侧功能区
         dbc.Col([
-            html.Label('Select Visualization:'),
-            dcc.Dropdown(
-                id='visualization-dropdown',
-                options=visualization_options,
-                value=[option['value'] for option in visualization_options],  # 默认全选
-                multi=True,
-                className='mt-3'
-            ),
-        ], width=3),
+            html.Div([
+                html.Label('Select Visualization:', style={'margin-bottom': '15px'}),
+                dcc.Dropdown(
+                    id='visualization-dropdown',
+                    options=visualization_options,
+                    value=[option['value'] for option in visualization_options],  # 默认全选
+                    multi=True,
+                    className='mt-3',
+                    style={'margin-bottom': '30px'}
+                ),
+                html.Label('Number of figures per row:', style={'margin-bottom': '15px'}),
+                dcc.Dropdown(
+                    id='figures-per-row-dropdown',
+                    options=[
+                        {'label': '1', 'value': 1},
+                        {'label': '2', 'value': 2}
+                    ],
+                    value=2,
+                    multi=False,
+                    className='mt-3',
+                    style={'margin-bottom': '30px'}
+                ),
+            ])
+        ], width=3, style={'border-right': '1px solid #ddd', 'padding-right': '15px'}),
+
+        # 右侧可视化图像生成区域
         dbc.Col([
             dbc.Row(id='visualization-rows')
         ], width=9)
     ])
-])
+], fluid=True)
 
 
 # 生成图像的回调函数
 @app.callback(
     Output('visualization-rows', 'children'),
-    [Input('visualization-dropdown', 'value')]
+    [Input('visualization-dropdown', 'value'),
+     Input('figures-per-row-dropdown', 'value')]
 )
-def update_graphs(selected_vis):
+def update_graphs(selected_vis, figures_per_row):
     if df.empty:
         return []
 
@@ -85,13 +107,14 @@ def update_graphs(selected_vis):
             bar_fig.update_layout(xaxis_title='Mutation Type', yaxis_title='Count')
             figs.append(bar_fig)
 
-    # 根据图像数量生成行和列布局
+    # 根据图像数量和用户选择生成行和列布局
     rows = []
-    for i in range(0, len(figs), 2):
+    for i in range(0, len(figs), figures_per_row):
         row = dbc.Row([
-            dbc.Col(dcc.Graph(figure=figs[i]), width=6) if i < len(figs) else None,
-            dbc.Col(dcc.Graph(figure=figs[i + 1]), width=6) if i + 1 < len(figs) else None
-        ])
+            dbc.Col(dcc.Graph(figure=figs[i]), width=int(12 / figures_per_row)) if i < len(figs) else None,
+            dbc.Col(dcc.Graph(figure=figs[i + 1]), width=int(12 / figures_per_row)) if i + 1 < len(
+                figs) and figures_per_row > 1 else None
+        ], className="mb-4")
         rows.append(row)
 
     return rows
