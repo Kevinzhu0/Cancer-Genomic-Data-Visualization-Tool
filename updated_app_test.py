@@ -244,7 +244,8 @@ def update_task_content(selected_task):
 @app.callback(
     Output('visualization-rows', 'children'),
     [Input('visualization-dropdown', 'value'),
-     Input('figures-per-row-dropdown', 'value')]
+     Input('figures-per-row-dropdown', 'value')],
+    # suppress_callback_exceptions=True
 )
 def update_graphs(selected_vis, figures_per_row):
     if df.empty:
