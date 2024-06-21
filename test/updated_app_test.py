@@ -4,14 +4,20 @@ from dash import dcc, html
 import dash_bootstrap_components as dbc
 from dash.dependencies import Input, Output, State
 import plotly.express as px
+import os
 
 # 初始化Dash应用程序并设置标题
 app = dash.Dash(__name__, external_stylesheets=[dbc.themes.BOOTSTRAP])
 app.title = "GenoVAI"
 
 # 读取项目中的癌症数据文件
-df = pd.read_csv('../dataset/Cleaned_BRCA_Merged_Data_test.csv')  # 替换为你实际的数据文件路径
+# df = pd.read_csv('../dataset/Cleaned_BRCA_Merged_Data_test.csv')  # 替换为你实际的数据文件路径
 
+data_path = os.path.join(os.path.dirname(__file__), 'dataset/Cleaned_BRCA_Merged_Data_test.csv')
+if os.path.exists(data_path):
+    df = pd.read_csv(data_path)
+else:
+    df = pd.DataFrame()
 # 定义可视化选项
 visualization_options = [
     {'label': 'Age Distribution at Initial Diagnosis', 'value': 'age_dist'},
@@ -37,7 +43,7 @@ task_options = [
 app.layout = dbc.Container([
     # 顶部Logo和标题区域
     dbc.Row([
-        dbc.Col(html.Img(src='../assets/GENOVAI Logo.png', height='80px'), width="auto"),
+        dbc.Col(html.Img(src=app.get_asset_url('GENOVAI Logo.png'), height='80px'), width="auto"),
         dbc.Col(html.H1("Cancer Genomic Data Visualization Tool", style={'fontSize': '18px', 'margin': '0'}), width=9),
     ], align="center", className="mb-4"),
 
