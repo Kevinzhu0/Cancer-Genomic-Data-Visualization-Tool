@@ -10,7 +10,7 @@ app = dash.Dash(__name__, external_stylesheets=[dbc.themes.BOOTSTRAP])
 app.title = "GenoVAI"
 
 # 读取项目中的癌症数据文件
-df = pd.read_csv('dataset/Cleaned_BRCA_Merged_Data_test.csv')  # 替换为你实际的数据文件路径
+df = pd.read_csv('../dataset/Cleaned_BRCA_Merged_Data_test.csv')  # 替换为你实际的数据文件路径
 
 # 定义可视化选项
 visualization_options = [
@@ -27,7 +27,7 @@ visualization_options = [
 app.layout = dbc.Container([
     # 顶部Logo和标题区域
     dbc.Row([
-        dbc.Col(html.Img(src='assets/GENOVAI Logo.png', height='80px'), width="auto"),
+        dbc.Col(html.Img(src='../assets/GENOVAI Logo.png', height='80px'), width="auto"),
         dbc.Col(html.H1("Cancer Genomic Data Visualization Tool", style={'fontSize': '18px', 'margin': '0'}), width=9),
     ], align="center", className="mb-4"),
 
