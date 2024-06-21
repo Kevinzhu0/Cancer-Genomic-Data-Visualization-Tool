@@ -2,7 +2,7 @@ import pandas as pd
 import dash
 from dash import dcc, html
 import dash_bootstrap_components as dbc
-from dash.dependencies import Input, Output
+from dash.dependencies import Input, Output, State
 import plotly.express as px
 
 # 初始化Dash应用程序并设置标题
@@ -24,6 +24,16 @@ visualization_options = [
     {'label': 'Number of Mutations per Patient', 'value': 'mutations_per_patient'}
 ]
 
+# 定义任务选项
+task_options = [
+    {'label': 'Data Analysis', 'value': 'data_analysis'},
+    {'label': 'Prediction Metrics', 'value': 'prediction_metrics'},
+    {'label': 'Tabular', 'value': 'tabular'},
+    {'label': 'Vision', 'value': 'vision'},
+    {'label': 'NLP', 'value': 'nlp'},
+    {'label': 'Timeseries', 'value': 'timeseries'}
+]
+
 app.layout = dbc.Container([
     # 顶部Logo和标题区域
     dbc.Row([
@@ -35,29 +45,16 @@ app.layout = dbc.Container([
     dbc.Row([
         # 左侧功能区
         dbc.Col([
-            html.Div([
-                html.Label('Select Visualization:', style={'margin-bottom': '15px'}),
-                dcc.Dropdown(
-                    id='visualization-dropdown',
-                    options=visualization_options,
-                    value=[option['value'] for option in visualization_options],  # 默认全选
-                    multi=True,
-                    className='mt-3',
-                    style={'margin-bottom': '30px'}
-                ),
-                html.Label('Number of figures per row:', style={'margin-bottom': '15px'}),
-                dcc.Dropdown(
-                    id='figures-per-row-dropdown',
-                    options=[
-                        {'label': '1', 'value': 1},
-                        {'label': '2', 'value': 2}
-                    ],
-                    value=2,
-                    multi=False,
-                    className='mt-3',
-                    style={'margin-bottom': '30px'}
-                ),
-            ])
+            html.Label('Select Task:', style={'margin-bottom': '15px'}),
+            dcc.Dropdown(
+                id='task-dropdown',
+                options=task_options,
+                value='data_analysis',
+                multi=False,
+                className='mt-3',
+                style={'margin-bottom': '30px'}
+            ),
+            html.Div(id='task-content')
         ], width=3, style={'border-right': '1px solid #ddd', 'padding-right': '15px'}),
 
         # 右侧可视化图像生成区域
@@ -68,11 +65,187 @@ app.layout = dbc.Container([
 ], fluid=True)
 
 
+# 任务选项内容
+@app.callback(
+    Output('task-content', 'children'),
+    Input('task-dropdown', 'value')
+)
+def update_task_content(selected_task):
+    if selected_task == 'data_analysis':
+        return html.Div([
+            html.Label('Select Visualization:', style={'margin-bottom': '15px'}),
+            dcc.Dropdown(
+                id='visualization-dropdown',
+                options=visualization_options,
+                value=[option['value'] for option in visualization_options],  # 默认全选
+                multi=True,
+                className='mt-3',
+                style={'margin-bottom': '30px'}
+            ),
+            html.Label('Number of figures per row:', style={'margin-bottom': '15px'}),
+            dcc.Dropdown(
+                id='figures-per-row-dropdown',
+                options=[
+                    {'label': '1', 'value': 1},
+                    {'label': '2', 'value': 2}
+                ],
+                value=2,
+                multi=False,
+                className='mt-3',
+                style={'margin-bottom': '30px'}
+            ),
+        ])
+    elif selected_task == 'prediction_metrics':
+        return html.Div([
+            html.Label('Select Visualization:', style={'margin-bottom': '15px'}),
+            dcc.Dropdown(
+                id='visualization-dropdown',
+                # options=visualization_options,
+                value=[],  # 默认值为空
+                multi=True,
+                className='mt-3',
+                style={'margin-bottom': '30px'}
+            ),
+            html.Label('Number of figures per row:', style={'margin-bottom': '15px'}),
+            dcc.Dropdown(
+                id='figures-per-row-dropdown',
+                options=[
+                    {'label': '1', 'value': 1},
+                    {'label': '2', 'value': 2}
+                ],
+                value=1,
+                multi=False,
+                className='mt-3',
+                style={'margin-bottom': '30px'}
+            ),
+        ])
+    elif selected_task == 'tabular':
+        return html.Div([
+            html.Label('Select Visualization:', style={'margin-bottom': '15px'}),
+            dcc.Dropdown(
+                id='visualization-dropdown',
+                # options=visualization_options,
+                value=[],  # 默认值为空
+                multi=True,
+                className='mt-3',
+                style={'margin-bottom': '30px'}
+            ),
+            html.Label('Number of figures per row:', style={'margin-bottom': '15px'}),
+            dcc.Dropdown(
+                id='figures-per-row-dropdown',
+                options=[
+                    {'label': '1', 'value': 1},
+                    {'label': '2', 'value': 2}
+                ],
+                value=1,
+                multi=False,
+                className='mt-3',
+                style={'margin-bottom': '30px'}
+            ),
+        ])
+    elif selected_task == 'vision':
+        return html.Div([
+            html.Label('Select Visualization:', style={'margin-bottom': '15px'}),
+            dcc.Dropdown(
+                id='visualization-dropdown',
+                # options=visualization_options,
+                value=[],  # 默认值为空
+                multi=True,
+                className='mt-3',
+                style={'margin-bottom': '30px'}
+            ),
+            html.Label('Number of figures per row:', style={'margin-bottom': '15px'}),
+            dcc.Dropdown(
+                id='figures-per-row-dropdown',
+                options=[
+                    {'label': '1', 'value': 1},
+                    {'label': '2', 'value': 2}
+                ],
+                value=1,
+                multi=False,
+                className='mt-3',
+                style={'margin-bottom': '30px'}
+            ),
+        ])
+    elif selected_task == 'nlp':
+        return html.Div([
+            html.Label('Select Visualization:', style={'margin-bottom': '15px'}),
+            dcc.Dropdown(
+                id='visualization-dropdown',
+                # options=visualization_options,
+                value=[],  # 默认值为空
+                multi=True,
+                className='mt-3',
+                style={'margin-bottom': '30px'}
+            ),
+            html.Label('Number of figures per row:', style={'margin-bottom': '15px'}),
+            dcc.Dropdown(
+                id='figures-per-row-dropdown',
+                options=[
+                    {'label': '1', 'value': 1},
+                    {'label': '2', 'value': 2}
+                ],
+                value=1,
+                multi=False,
+                className='mt-3',
+                style={'margin-bottom': '30px'}
+            ),
+        ])
+    elif selected_task == 'timeseries':
+        return html.Div([
+            html.Label('Select Visualization:', style={'margin-bottom': '15px'}),
+            dcc.Dropdown(
+                id='visualization-dropdown',
+                # options=visualization_options,
+                value=[],  # 默认值为空
+                multi=True,
+                className='mt-3',
+                style={'margin-bottom': '30px'}
+            ),
+            html.Label('Number of figures per row:', style={'margin-bottom': '15px'}),
+            dcc.Dropdown(
+                id='figures-per-row-dropdown',
+                options=[
+                    {'label': '1', 'value': 1},
+                    {'label': '2', 'value': 2}
+                ],
+                value=1,
+                multi=False,
+                className='mt-3',
+                style={'margin-bottom': '30px'}
+            ),
+        ])
+    return html.Div([
+        html.Label('Select Visualization:', style={'margin-bottom': '15px'}),
+        dcc.Dropdown(
+            id='visualization-dropdown',
+            # options=visualization_options,
+            value=[],  # 默认值为空
+            multi=True,
+            className='mt-3',
+            style={'margin-bottom': '30px'}
+        ),
+        html.Label('Number of figures per row:', style={'margin-bottom': '15px'}),
+        dcc.Dropdown(
+            id='figures-per-row-dropdown',
+            options=[
+                {'label': '1', 'value': 1},
+                {'label': '2', 'value': 2}
+            ],
+            value=1,
+            multi=False,
+            className='mt-3',
+            style={'margin-bottom': '30px'}
+        ),
+    ])
+
+
 # 生成图像的回调函数
 @app.callback(
     Output('visualization-rows', 'children'),
     [Input('visualization-dropdown', 'value'),
-     Input('figures-per-row-dropdown', 'value')]
+     Input('figures-per-row-dropdown', 'value')],
+    # suppress_callback_exceptions=True
 )
 def update_graphs(selected_vis, figures_per_row):
     if df.empty:
