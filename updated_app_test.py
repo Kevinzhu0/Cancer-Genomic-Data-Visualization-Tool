@@ -2,7 +2,7 @@ import pandas as pd
 import dash
 from dash import dcc, html
 import dash_bootstrap_components as dbc
-from dash.dependencies import Input, Output
+from dash.dependencies import Input, Output, State
 import plotly.express as px
 
 # 初始化Dash应用程序并设置标题
@@ -10,7 +10,7 @@ app = dash.Dash(__name__, external_stylesheets=[dbc.themes.BOOTSTRAP])
 app.title = "GenoVAI"
 
 # 读取项目中的癌症数据文件
-df = pd.read_csv('dataset/Cleaned_BRCA_Merged_Data.csv')  # 替换为你实际的数据文件路径
+df = pd.read_csv('dataset/Cleaned_BRCA_Merged_Data_test.csv')  # 替换为你实际的数据文件路径
 
 # 定义可视化选项
 visualization_options = [
@@ -19,7 +19,19 @@ visualization_options = [
     {'label': 'Age at Initial Diagnosis vs. Mutation Type and Vital Status', 'value': 'mutation_vs_age_vs_status'},
     {'label': 'Top 10 Mutation Type Distribution in BRCA Patients', 'value': 'mutation_type_dist'},
     {'label': 'Gene Mutation Frequency by Chromosome', 'value': 'mutation_by_chr'},
-    {'label': 'Age at Initial Diagnosis by Gender', 'value': 'age_by_gender'}
+    {'label': 'Age at Initial Diagnosis by Gender', 'value': 'age_by_gender'},
+    {'label': 'Number of Mutations per Gene', 'value': 'mutations_per_gene'},
+    {'label': 'Number of Mutations per Patient', 'value': 'mutations_per_patient'}
+]
+
+# 定义任务选项
+task_options = [
+    {'label': 'Data Analysis', 'value': 'data_analysis'},
+    {'label': 'Prediction Metrics', 'value': 'prediction_metrics'},
+    {'label': 'Tabular', 'value': 'tabular'},
+    {'label': 'Vision', 'value': 'vision'},
+    {'label': 'NLP', 'value': 'nlp'},
+    {'label': 'Timeseries', 'value': 'timeseries'}
 ]
 
 app.layout = dbc.Container([
@@ -33,29 +45,16 @@ app.layout = dbc.Container([
     dbc.Row([
         # 左侧功能区
         dbc.Col([
-            html.Div([
-                html.Label('Select Visualization:', style={'margin-bottom': '15px'}),
-                dcc.Dropdown(
-                    id='visualization-dropdown',
-                    options=visualization_options,
-                    value=[option['value'] for option in visualization_options],  # 默认全选
-                    multi=True,
-                    className='mt-3',
-                    style={'margin-bottom': '30px'}
-                ),
-                html.Label('Number of figures per row:', style={'margin-bottom': '15px'}),
-                dcc.Dropdown(
-                    id='figures-per-row-dropdown',
-                    options=[
-                        {'label': '1', 'value': 1},
-                        {'label': '2', 'value': 2}
-                    ],
-                    value=2,
-                    multi=False,
-                    className='mt-3',
-                    style={'margin-bottom': '30px'}
-                ),
-            ])
+            html.Label('Select Task:', style={'margin-bottom': '15px'}),
+            dcc.Dropdown(
+                id='task-dropdown',
+                options=task_options,
+                value='data_analysis',
+                multi=False,
+                className='mt-3',
+                style={'margin-bottom': '30px'}
+            ),
+            html.Div(id='task-content')
         ], width=3, style={'border-right': '1px solid #ddd', 'padding-right': '15px'}),
 
         # 右侧可视化图像生成区域
@@ -64,6 +63,181 @@ app.layout = dbc.Container([
         ], width=9)
     ])
 ], fluid=True)
+
+
+# 任务选项内容
+@app.callback(
+    Output('task-content', 'children'),
+    Input('task-dropdown', 'value')
+)
+def update_task_content(selected_task):
+    if selected_task == 'data_analysis':
+        return html.Div([
+            html.Label('Select Visualization:', style={'margin-bottom': '15px'}),
+            dcc.Dropdown(
+                id='visualization-dropdown',
+                options=visualization_options,
+                value=[option['value'] for option in visualization_options],  # 默认全选
+                multi=True,
+                className='mt-3',
+                style={'margin-bottom': '30px'}
+            ),
+            html.Label('Number of figures per row:', style={'margin-bottom': '15px'}),
+            dcc.Dropdown(
+                id='figures-per-row-dropdown',
+                options=[
+                    {'label': '1', 'value': 1},
+                    {'label': '2', 'value': 2}
+                ],
+                value=2,
+                multi=False,
+                className='mt-3',
+                style={'margin-bottom': '30px'}
+            ),
+        ])
+    elif selected_task == 'prediction_metrics':
+        return html.Div([
+            html.Label('Select Visualization:', style={'margin-bottom': '15px'}),
+            dcc.Dropdown(
+                id='visualization-dropdown',
+                # options=visualization_options,
+                value=[],  # 默认值为空
+                multi=True,
+                className='mt-3',
+                style={'margin-bottom': '30px'}
+            ),
+            html.Label('Number of figures per row:', style={'margin-bottom': '15px'}),
+            dcc.Dropdown(
+                id='figures-per-row-dropdown',
+                options=[
+                    {'label': '1', 'value': 1},
+                    {'label': '2', 'value': 2}
+                ],
+                value=1,
+                multi=False,
+                className='mt-3',
+                style={'margin-bottom': '30px'}
+            ),
+        ])
+    elif selected_task == 'tabular':
+        return html.Div([
+            html.Label('Select Visualization:', style={'margin-bottom': '15px'}),
+            dcc.Dropdown(
+                id='visualization-dropdown',
+                # options=visualization_options,
+                value=[],  # 默认值为空
+                multi=True,
+                className='mt-3',
+                style={'margin-bottom': '30px'}
+            ),
+            html.Label('Number of figures per row:', style={'margin-bottom': '15px'}),
+            dcc.Dropdown(
+                id='figures-per-row-dropdown',
+                options=[
+                    {'label': '1', 'value': 1},
+                    {'label': '2', 'value': 2}
+                ],
+                value=1,
+                multi=False,
+                className='mt-3',
+                style={'margin-bottom': '30px'}
+            ),
+        ])
+    elif selected_task == 'vision':
+        return html.Div([
+            html.Label('Select Visualization:', style={'margin-bottom': '15px'}),
+            dcc.Dropdown(
+                id='visualization-dropdown',
+                # options=visualization_options,
+                value=[],  # 默认值为空
+                multi=True,
+                className='mt-3',
+                style={'margin-bottom': '30px'}
+            ),
+            html.Label('Number of figures per row:', style={'margin-bottom': '15px'}),
+            dcc.Dropdown(
+                id='figures-per-row-dropdown',
+                options=[
+                    {'label': '1', 'value': 1},
+                    {'label': '2', 'value': 2}
+                ],
+                value=1,
+                multi=False,
+                className='mt-3',
+                style={'margin-bottom': '30px'}
+            ),
+        ])
+    elif selected_task == 'nlp':
+        return html.Div([
+            html.Label('Select Visualization:', style={'margin-bottom': '15px'}),
+            dcc.Dropdown(
+                id='visualization-dropdown',
+                # options=visualization_options,
+                value=[],  # 默认值为空
+                multi=True,
+                className='mt-3',
+                style={'margin-bottom': '30px'}
+            ),
+            html.Label('Number of figures per row:', style={'margin-bottom': '15px'}),
+            dcc.Dropdown(
+                id='figures-per-row-dropdown',
+                options=[
+                    {'label': '1', 'value': 1},
+                    {'label': '2', 'value': 2}
+                ],
+                value=1,
+                multi=False,
+                className='mt-3',
+                style={'margin-bottom': '30px'}
+            ),
+        ])
+    elif selected_task == 'timeseries':
+        return html.Div([
+            html.Label('Select Visualization:', style={'margin-bottom': '15px'}),
+            dcc.Dropdown(
+                id='visualization-dropdown',
+                # options=visualization_options,
+                value=[],  # 默认值为空
+                multi=True,
+                className='mt-3',
+                style={'margin-bottom': '30px'}
+            ),
+            html.Label('Number of figures per row:', style={'margin-bottom': '15px'}),
+            dcc.Dropdown(
+                id='figures-per-row-dropdown',
+                options=[
+                    {'label': '1', 'value': 1},
+                    {'label': '2', 'value': 2}
+                ],
+                value=1,
+                multi=False,
+                className='mt-3',
+                style={'margin-bottom': '30px'}
+            ),
+        ])
+    return html.Div([
+        html.Label('Select Visualization:', style={'margin-bottom': '15px'}),
+        dcc.Dropdown(
+            id='visualization-dropdown',
+            # options=visualization_options,
+            value=[],  # 默认值为空
+            multi=True,
+            className='mt-3',
+            style={'margin-bottom': '30px'}
+        ),
+        html.Label('Number of figures per row:', style={'margin-bottom': '15px'}),
+        dcc.Dropdown(
+            id='figures-per-row-dropdown',
+            options=[
+                {'label': '1', 'value': 1},
+                {'label': '2', 'value': 2}
+            ],
+            value=1,
+            multi=False,
+            className='mt-3',
+            style={'margin-bottom': '30px'}
+        ),
+    ])
 
 
 # 生成图像的回调函数
@@ -124,6 +298,32 @@ def update_graphs(selected_vis, figures_per_row):
                              title='Age at Initial Diagnosis by Gender')
             box_fig.update_layout(xaxis_title='Gender', yaxis_title='Age at Initial Pathologic Diagnosis')
             figs.append(box_fig)
+
+        elif vis == 'mutations_per_gene':
+            # 生成Number of Mutations per Gene图像（堆积条形图）
+            top_genes = df['Hugo_Symbol'].value_counts().head(10).index
+            filtered_df = df[df['Hugo_Symbol'].isin(top_genes)]
+            mutations_per_gene_fig = px.histogram(filtered_df, x='Hugo_Symbol', color='One_Consequence',
+                                                  title='Number of Mutations per Gene',
+                                                  category_orders={'One_Consequence': filtered_df[
+                                                                                          'One_Consequence'].value_counts().index[
+                                                                                      :5].tolist()},
+                                                  labels={'Hugo_Symbol': 'Gene', 'count': 'Mutation Count'},
+                                                  barmode='stack')
+            mutations_per_gene_fig.update_layout(xaxis_title='Gene', yaxis_title='Mutation Count')
+            figs.append(mutations_per_gene_fig)
+
+        elif vis == 'mutations_per_patient':
+            # 生成Number of Mutations per Patient图像
+            mutations_per_patient = df['bcr_patient_barcode'].value_counts().head(10)
+            max_value = mutations_per_patient.max()
+            y_axis_max = max(10, max_value + 1)  # 动态调整Y轴范围
+            mutations_per_patient_fig = px.bar(mutations_per_patient, x=mutations_per_patient.index,
+                                               y=mutations_per_patient.values,
+                                               title='Number of Mutations per Patient')
+            mutations_per_patient_fig.update_layout(xaxis_title='Patient', yaxis_title='Mutation Count',
+                                                    yaxis=dict(range=[0, y_axis_max]), xaxis={'tickangle': 45})
+            figs.append(mutations_per_patient_fig)
 
     # 根据图像数量和用户选择生成行和列布局
     rows = []
