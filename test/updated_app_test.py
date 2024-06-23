@@ -30,10 +30,16 @@ visualization_options = [
     {'label': 'Number of Mutations per Patient', 'value': 'mutations_per_patient'},
     {'label': 'BRCA Gene Mutation Waterfall Plot', 'value': 'brca_waterfall'}
 ]
-
+prediction_metrics_options = [
+    {'label': '1', 'value': 1},
+    {'label': '2', 'value': 2},
+    {'label': '3', 'value': 3},
+    {'label': '4', 'value': 4},
+    {'label': '5', 'value': 5}
+]
 # 定义任务选项
 task_options = [
-    {'label': 'Data Analysis', 'value': 'data_analysis'},
+    {'label': 'Genomic Data Analysis', 'value': 'data_analysis'},
     {'label': 'Prediction Metrics', 'value': 'prediction_metrics'},
     {'label': 'Tabular', 'value': 'tabular'},
     {'label': 'Vision', 'value': 'vision'},
@@ -107,8 +113,8 @@ def update_task_content(selected_task):
             html.Label('Select Visualization:', style={'margin-bottom': '15px'}),
             dcc.Dropdown(
                 id='visualization-dropdown',
-                # options=visualization_options,
-                value=[],  # 默认值为空
+                options=prediction_metrics_options,
+                value=[option['value'] for option in prediction_metrics_options],  # 默认全选
                 multi=True,
                 className='mt-3',
                 style={'margin-bottom': '30px'}
@@ -251,7 +257,8 @@ def update_task_content(selected_task):
 @app.callback(
     Output('visualization-rows', 'children'),
     [Input('visualization-dropdown', 'value'),
-     Input('figures-per-row-dropdown', 'value')]
+     Input('figures-per-row-dropdown', 'value')],
+    # prevent_initial_call=True
 )
 def update_graphs(selected_vis, figures_per_row):
     if df.empty:
@@ -341,7 +348,11 @@ def update_graphs(selected_vis, figures_per_row):
                                    title='BRCA Gene Mutation Waterfall Plot')
             waterfall_fig.update_layout(xaxis_title='Gene', yaxis_title='Count')
             figs.append(waterfall_fig)
-
+    # print "The visualization plots user chose"
+    print(f"The plots user chose: {selected_vis}")
+    # if there is no value in 'visualization-dropdown' there is no update
+    # if len(selected_vis) == 0:
+    #     return dash.no_update
     # 根据图像数量和用户选择生成行和列布局
     rows = []
     for i in range(0, len(figs), figures_per_row):
