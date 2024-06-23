@@ -27,15 +27,16 @@ visualization_options = [
     {'label': 'Gene Mutation Frequency by Chromosome', 'value': 'mutation_by_chr'},
     {'label': 'Age at Initial Diagnosis by Gender', 'value': 'age_by_gender'},
     {'label': 'Number of Mutations per Gene', 'value': 'mutations_per_gene'},
-    {'label': 'Number of Mutations per Patient', 'value': 'mutations_per_patient'},
-    {'label': 'BRCA Gene Mutation Waterfall Plot', 'value': 'brca_waterfall'}
+    {'label': 'Number of Mutations per Patient', 'value': 'mutations_per_patient'}
+    # {'label': 'BRCA Gene Mutation Waterfall Plot', 'value': 'brca_waterfall'}
 ]
 prediction_metrics_options = [
-    {'label': '1', 'value': 1},
-    {'label': '2', 'value': 2},
-    {'label': '3', 'value': 3},
-    {'label': '4', 'value': 4},
-    {'label': '5', 'value': 5}
+    {'label': 'a', 'value': 'A'},
+    {'label': 'b', 'value': 'B'},
+    {'label': 'c', 'value': 'C'},
+    {'label': 'd', 'value': 'D'},
+    {'label': 'e', 'value': 'E'},
+    {'label': 'BRCA Gene Mutation Waterfall Plot', 'value': 'brca_waterfall'}
 ]
 # 定义任务选项
 task_options = [
@@ -84,7 +85,9 @@ app.layout = dbc.Container([
     Input('task-dropdown', 'value')
 )
 def update_task_content(selected_task):
-    if selected_task == 'data_analysis':
+    if selected_task == '':
+        return dash.no_update
+    elif selected_task == 'data_analysis':
         return html.Div([
             html.Label('Select Visualization:', style={'margin-bottom': '15px'}),
             dcc.Dropdown(
