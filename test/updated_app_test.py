@@ -42,7 +42,7 @@ prediction_metrics_options = [
 task_options = [
     {'label': 'Genomic Data Analysis', 'value': 'data_analysis'},
     {'label': 'Prediction Metrics', 'value': 'prediction_metrics'},
-    {'label': 'Tabular', 'value': 'tabular'},
+    # {'label': 'Tabular', 'value': 'tabular'},
     {'label': 'Vision', 'value': 'vision'},
     {'label': 'NLP', 'value': 'nlp'},
     {'label': 'Timeseries', 'value': 'timeseries'}
