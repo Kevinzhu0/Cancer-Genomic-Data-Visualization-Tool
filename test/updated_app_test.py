@@ -85,6 +85,7 @@ app.layout = dbc.Container([
     Input('task-dropdown', 'value')
 )
 def update_task_content(selected_task):
+    # if there is no value in 'task-dropdown' there is no update
     if selected_task == '':
         return dash.no_update
     elif selected_task == 'data_analysis':
@@ -354,8 +355,8 @@ def update_graphs(selected_vis, figures_per_row):
     # print "The visualization plots user chose"
     print(f"The plots user chose: {selected_vis}")
     # if there is no value in 'visualization-dropdown' there is no update
-    # if len(selected_vis) == 0:
-    #     return dash.no_update
+    if len(selected_vis) == 0:
+        return dash.no_update
     # 根据图像数量和用户选择生成行和列布局
     rows = []
     for i in range(0, len(figs), figures_per_row):
