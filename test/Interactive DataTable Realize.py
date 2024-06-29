@@ -7,8 +7,25 @@ df = pd.read_csv('dataset/Cleaned_BRCA_Merged_Data_test.csv')  # 替换为你实
 
 # 删除第一列并重新排列数据框列顺序，将与可视化相关的列放在前面显示
 columns_to_display = ['Hugo_Symbol', 'One_Consequence', 'age_at_initial_pathologic_diagnosis', 'vital_status'] + \
-                     [col for col in df.columns if col not in ['Unnamed: 0', 'Hugo_Symbol', 'One_Consequence', 'age_at_initial_pathologic_diagnosis', 'vital_status']]
+                     [col for col in df.columns if
+                      col not in ['Unnamed: 0', 'Hugo_Symbol', 'One_Consequence', 'age_at_initial_pathologic_diagnosis',
+                                  'vital_status']]
 df = df[columns_to_display]
+
+# 创建工具提示数据
+tooltips = []
+for i in range(len(df)):
+    tooltips.append({
+        'Hugo_Symbol': {
+            'value': f"Barcode: {df.loc[i, 'bcr_patient_barcode']}, "
+                     f"Hugo_Symbol: {df.loc[i, 'Hugo_Symbol']},"
+                     f"One_Consequence: {df.loc[i, 'One_Consequence']}, "
+                     f"Age: {df.loc[i, 'age_at_initial_pathologic_diagnosis']}, "
+                     f"Vital Status: {df.loc[i, 'vital_status']}, "
+                     f"Gender: {df.loc[i, 'gender']}",
+                     'type': 'markdown'
+        }
+    })
 
 app = Dash(__name__)
 
@@ -31,6 +48,12 @@ app.layout = html.Div([
         page_action="native",
         page_current=0,
         page_size=10,
+        tooltip_data=tooltips,
+        # tooltip_data=[
+        #     {column: {'value': str(value), 'type': 'markdown'} for column, value in row.items()} for row in
+        #     df.to_dict('records')
+        # ],
+        tooltip_duration=None,  # 保持工具提示一直可见
     ),
     html.Div(id='datatable-interactivity-container')
 ])
