@@ -5,7 +5,6 @@ import dash_bootstrap_components as dbc
 from dash.dependencies import Input, Output, State
 import plotly.express as px
 import os
-import dash_table
 
 # 初始化Dash应用程序并设置标题
 app = dash.Dash(__name__, external_stylesheets=[dbc.themes.BOOTSTRAP])
