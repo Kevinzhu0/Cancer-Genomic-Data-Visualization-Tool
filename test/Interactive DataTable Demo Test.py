@@ -23,7 +23,7 @@ for i in range(len(df)):
                      f"Age: {df.loc[i, 'age_at_initial_pathologic_diagnosis']}, "
                      f"Vital Status: {df.loc[i, 'vital_status']}, "
                      f"Gender: {df.loc[i, 'gender']}",
-            'type': 'markdown'
+                     'type': 'markdown'
         }
     })
 
@@ -49,6 +49,10 @@ app.layout = html.Div([
         page_current=0,
         page_size=10,
         tooltip_data=tooltips,
+        # tooltip_data=[
+        #     {column: {'value': str(value), 'type': 'markdown'} for column, value in row.items()} for row in
+        #     df.to_dict('records')
+        # ],
         tooltip_duration=None,  # 保持工具提示一直可见
     ),
     html.Div(id='datatable-interactivity-container')
@@ -83,20 +87,10 @@ def update_graphs(rows, derived_virtual_selected_rows):
                            title='BRCA Gene Mutation Waterfall Plot')
     waterfall_fig.update_layout(xaxis_title='Gene', yaxis_title='Count')
 
-    # 添加折线图
-    line_data = dff.groupby('age_at_initial_pathologic_diagnosis').size().reset_index(name='Mutation Count')
-    line_fig = px.line(line_data, x='age_at_initial_pathologic_diagnosis', y='Mutation Count',
-                       title='Mutation Count by Age at Initial Pathologic Diagnosis')
-    line_fig.update_layout(xaxis_title='Age at Initial Pathologic Diagnosis', yaxis_title='Mutation Count')
-
     return [
         dcc.Graph(
             id='brca_waterfall',
             figure=waterfall_fig
-        ),
-        dcc.Graph(
-            id='mutation_line',
-            figure=line_fig
         )
     ]
 
