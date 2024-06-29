@@ -28,13 +28,21 @@ visualization_options = [
     {'label': 'Age at Initial Diagnosis by Gender', 'value': 'age_by_gender'},
     {'label': 'Number of Mutations per Gene', 'value': 'mutations_per_gene'},
     {'label': 'Number of Mutations per Patient', 'value': 'mutations_per_patient'}
+    # {'label': 'BRCA Gene Mutation Waterfall Plot', 'value': 'brca_waterfall'}
 ]
-
+prediction_metrics_options = [
+    {'label': 'a', 'value': 'A'},
+    {'label': 'b', 'value': 'B'},
+    {'label': 'c', 'value': 'C'},
+    {'label': 'd', 'value': 'D'},
+    {'label': 'e', 'value': 'E'},
+    {'label': 'BRCA Gene Mutation Waterfall Plot', 'value': 'brca_waterfall'}
+]
 # 定义任务选项
 task_options = [
-    {'label': 'Data Analysis', 'value': 'data_analysis'},
+    {'label': 'Genomic Data Analysis', 'value': 'data_analysis'},
     {'label': 'Prediction Metrics', 'value': 'prediction_metrics'},
-    {'label': 'Tabular', 'value': 'tabular'},
+    # {'label': 'Tabular', 'value': 'tabular'},
     {'label': 'Vision', 'value': 'vision'},
     {'label': 'NLP', 'value': 'nlp'},
     {'label': 'Timeseries', 'value': 'timeseries'}
@@ -77,7 +85,10 @@ app.layout = dbc.Container([
     Input('task-dropdown', 'value')
 )
 def update_task_content(selected_task):
-    if selected_task == 'data_analysis':
+    # if there is no value in 'task-dropdown' there is no update
+    if selected_task == '':
+        return dash.no_update
+    elif selected_task == 'data_analysis':
         return html.Div([
             html.Label('Select Visualization:', style={'margin-bottom': '15px'}),
             dcc.Dropdown(
@@ -106,8 +117,8 @@ def update_task_content(selected_task):
             html.Label('Select Visualization:', style={'margin-bottom': '15px'}),
             dcc.Dropdown(
                 id='visualization-dropdown',
-                # options=visualization_options,
-                value=[],  # 默认值为空
+                options=prediction_metrics_options,
+                value=[option['value'] for option in prediction_metrics_options],  # 默认全选
                 multi=True,
                 className='mt-3',
                 style={'margin-bottom': '30px'}
@@ -251,7 +262,7 @@ def update_task_content(selected_task):
     Output('visualization-rows', 'children'),
     [Input('visualization-dropdown', 'value'),
      Input('figures-per-row-dropdown', 'value')],
-    # suppress_callback_exceptions=True
+    # prevent_initial_call=True
 )
 def update_graphs(selected_vis, figures_per_row):
     if df.empty:
@@ -332,6 +343,20 @@ def update_graphs(selected_vis, figures_per_row):
                                                     yaxis=dict(range=[0, y_axis_max]), xaxis={'tickangle': 45})
             figs.append(mutations_per_patient_fig)
 
+        elif vis == 'brca_waterfall':
+            # 生成BRCA基因突变的瀑布图
+            top_genes = df['Hugo_Symbol'].value_counts().head(10).index
+            filtered_df = df[df['Hugo_Symbol'].isin(top_genes)]
+            waterfall_data = filtered_df.groupby(['Hugo_Symbol', 'One_Consequence']).size().reset_index(name='Count')
+            waterfall_fig = px.bar(waterfall_data, x='Hugo_Symbol', y='Count', color='One_Consequence',
+                                   title='BRCA Gene Mutation Waterfall Plot')
+            waterfall_fig.update_layout(xaxis_title='Gene', yaxis_title='Count')
+            figs.append(waterfall_fig)
+    # print "The visualization plots user chose"
+    print(f"The plots user chose: {selected_vis}")
+    # if there is no value in 'visualization-dropdown' there is no update
+    if len(selected_vis) == 0:
+        return dash.no_update
     # 根据图像数量和用户选择生成行和列布局
     rows = []
     for i in range(0, len(figs), figures_per_row):
