@@ -36,7 +36,7 @@ prediction_metrics_options = [
     {'label': 'c', 'value': 'C'},
     {'label': 'd', 'value': 'D'},
     {'label': 'e', 'value': 'E'},
-    {'label': 'BRCA Gene Mutation Waterfall Plot', 'value': 'brca_waterfall'}
+    {'label': 'BRCA Gene Mutation Waterfall DataTable&Plot', 'value': 'brca_waterfall'}
 ]
 # 定义任务选项
 task_options = [

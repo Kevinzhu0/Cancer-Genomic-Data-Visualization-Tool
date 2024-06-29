@@ -5,6 +5,11 @@ import plotly.express as px
 # 读取项目中的癌症数据文件
 df = pd.read_csv('dataset/Cleaned_BRCA_Merged_Data_test.csv')  # 替换为你实际的数据文件路径
 
+# 删除第一列并重新排列数据框列顺序，将与可视化相关的列放在前面显示
+columns_to_display = ['Hugo_Symbol', 'One_Consequence', 'age_at_initial_pathologic_diagnosis', 'vital_status'] + \
+                     [col for col in df.columns if col not in ['Unnamed: 0', 'Hugo_Symbol', 'One_Consequence', 'age_at_initial_pathologic_diagnosis', 'vital_status']]
+df = df[columns_to_display]
+
 app = Dash(__name__)
 
 app.layout = html.Div([
