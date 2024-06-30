@@ -48,12 +48,27 @@ prediction_metrics_options = [
 # 定义任务选项
 task_options = [
     {'label': 'Genomic Data Analysis', 'value': 'data_analysis'},
-    {'label': 'Prediction Metrics', 'value': 'prediction_metrics'},
+    {'label': 'brca_wplot&mucnt_byage', 'value': 'Brca_wplot&mucnt_byage'},
     # {'label': 'Tabular', 'value': 'tabular'},
     {'label': 'Vision', 'value': 'vision'},
     {'label': 'NLP', 'value': 'nlp'},
     {'label': 'Timeseries', 'value': 'timeseries'}
 ]
+
+# 创建datatable tooltips工具提示数据
+tooltips = []
+for i in range(len(df)):
+    tooltips.append({
+        'Hugo_Symbol': {
+            'value': f"Barcode: {df.loc[i, 'bcr_patient_barcode']}, "
+                     f"Hugo_Symbol: {df.loc[i, 'Hugo_Symbol']},"
+                     f"One_Consequence: {df.loc[i, 'One_Consequence']}, "
+                     f"Age: {df.loc[i, 'age_at_initial_pathologic_diagnosis']}, "
+                     f"Vital Status: {df.loc[i, 'vital_status']}, "
+                     f"Gender: {df.loc[i, 'gender']}",
+            'type': 'markdown'
+        }
+    })
 
 app.layout = dbc.Container([
     # 顶部Logo和标题区域
@@ -81,6 +96,7 @@ app.layout = dbc.Container([
         # 右侧可视化图像生成区域
         dbc.Col([
             html.Div([
+                # dash table_Construction
                 dash_table.DataTable(
                     id='datatable-interactivity',
                     columns=[
@@ -99,11 +115,13 @@ app.layout = dbc.Container([
                     page_action="native",
                     page_current=0,
                     page_size=10,
-                    # tooltip_data=tooltips,
+                    tooltip_data=tooltips,
                     tooltip_duration=None,  # 保持工具提示一直可见
                 ),
+                # brca_waterfall plotting && Linechart plotting
                 html.Div(id='datatable-interactivity-container')
             ]),
+            # visualization_plots_container
             dbc.Row(id='visualization-rows')
         ], width=9)
     ])
@@ -143,7 +161,7 @@ def update_task_content(selected_task):
                 style={'margin-bottom': '30px'}
             ),
         ])
-    elif selected_task == 'prediction_metrics':
+    elif selected_task == 'Brca_wplot&mucnt_byage':
         return html.Div([
             html.Label('Select Visualization:', style={'margin-bottom': '15px'}),
             dcc.Dropdown(
@@ -303,10 +321,13 @@ def update_styles(selected_columns):
 @app.callback(
     Output('visualization-rows', 'children'),
     [Input('visualization-dropdown', 'value'),
-     Input('figures-per-row-dropdown', 'value')],
+     Input('figures-per-row-dropdown', 'value'),
+     Input('datatable-interactivity', "derived_virtual_data"),
+     Input('datatable-interactivity', "derived_virtual_selected_rows")
+     ],
     # prevent_initial_call=True
 )
-def update_graphs(selected_vis, figures_per_row):
+def update_graphs(selected_vis, figures_per_row, rows, derived_virtual_selected_rows):
     if df.empty:
         return []
 
@@ -386,15 +407,30 @@ def update_graphs(selected_vis, figures_per_row):
             figs.append(mutations_per_patient_fig)
 
         elif vis == 'brca_waterfall':
-            # 生成BRCA基因突变的瀑布图
-            top_genes = df['Hugo_Symbol'].value_counts().head(20).index
-            filtered_df = df[df['Hugo_Symbol'].isin(top_genes)]
-            waterfall_data = filtered_df.groupby(['Hugo_Symbol', 'One_Consequence']).size().reset_index(name='Count')
+            #     # 生成BRCA基因突变的瀑布图
+            #     top_genes = df['Hugo_Symbol'].value_counts().head(20).index
+            #     filtered_df = df[df['Hugo_Symbol'].isin(top_genes)]
+            #     waterfall_data = filtered_df.groupby(['Hugo_Symbol', 'One_Consequence']).size().reset_index(name='Count')
+            #     waterfall_fig = px.bar(waterfall_data, x='Hugo_Symbol', y='Count', color='One_Consequence',
+            #                            title='BRCA Gene Mutation Waterfall Plot')
+            #     waterfall_fig.update_layout(xaxis_title='Gene', yaxis_title='Count')
+            #     # 添加折线图
+            #     line_data = df.groupby('age_at_initial_pathologic_diagnosis').size().reset_index(name='Mutation Count')
+            #     line_fig = px.line(line_data, x='age_at_initial_pathologic_diagnosis', y='Mutation Count',
+            #                        title='Mutation Count by Age at Initial Pathologic Diagnosis')
+            #     line_fig.update_layout(xaxis_title='Age at Initial Pathologic Diagnosis', yaxis_title='Mutation Count')
+            if derived_virtual_selected_rows is None:
+                derived_virtual_selected_rows = []
+            dff = df if rows is None else pd.DataFrame(rows)
+            top_genes = dff['Hugo_Symbol'].value_counts().head(20).index
+            filtered_df = dff[dff['Hugo_Symbol'].isin(top_genes)]
+            waterfall_data = filtered_df.groupby(['Hugo_Symbol', 'One_Consequence']).size().reset_index(
+                name='Count')
             waterfall_fig = px.bar(waterfall_data, x='Hugo_Symbol', y='Count', color='One_Consequence',
                                    title='BRCA Gene Mutation Waterfall Plot')
             waterfall_fig.update_layout(xaxis_title='Gene', yaxis_title='Count')
             # 添加折线图
-            line_data = df.groupby('age_at_initial_pathologic_diagnosis').size().reset_index(name='Mutation Count')
+            line_data = dff.groupby('age_at_initial_pathologic_diagnosis').size().reset_index(name='Mutation Count')
             line_fig = px.line(line_data, x='age_at_initial_pathologic_diagnosis', y='Mutation Count',
                                title='Mutation Count by Age at Initial Pathologic Diagnosis')
             line_fig.update_layout(xaxis_title='Age at Initial Pathologic Diagnosis', yaxis_title='Mutation Count')

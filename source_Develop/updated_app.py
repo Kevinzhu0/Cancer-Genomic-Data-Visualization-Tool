@@ -1,6 +1,6 @@
 import pandas as pd
 import dash
-from dash import dcc, html
+from dash import dcc, html, dash_table
 import dash_bootstrap_components as dbc
 from dash.dependencies import Input, Output, State
 import plotly.express as px
@@ -16,6 +16,13 @@ app.title = "GenoVAI"
 data_path = os.path.join(os.path.dirname(__file__), 'dataset/Cleaned_BRCA_Merged_Data_test.csv')
 if os.path.exists(data_path):
     df = pd.read_csv(data_path)
+    # 删除第一列并重新排列数据框列顺序，将与可视化相关的列放在前面显示
+    columns_to_display = ['Hugo_Symbol', 'One_Consequence', 'age_at_initial_pathologic_diagnosis', 'vital_status'] + \
+                         [col for col in df.columns if
+                          col not in ['Unnamed: 0', 'Hugo_Symbol', 'One_Consequence',
+                                      'age_at_initial_pathologic_diagnosis',
+                                      'vital_status']]
+    df = df[columns_to_display]
 else:
     df = pd.DataFrame()
 # 定义可视化选项
@@ -48,6 +55,21 @@ task_options = [
     {'label': 'Timeseries', 'value': 'timeseries'}
 ]
 
+# 创建datatable tooltips工具提示数据
+tooltips = []
+for i in range(len(df)):
+    tooltips.append({
+        'Hugo_Symbol': {
+            'value': f"Barcode: {df.loc[i, 'bcr_patient_barcode']}, "
+                     f"Hugo_Symbol: {df.loc[i, 'Hugo_Symbol']},"
+                     f"One_Consequence: {df.loc[i, 'One_Consequence']}, "
+                     f"Age: {df.loc[i, 'age_at_initial_pathologic_diagnosis']}, "
+                     f"Vital Status: {df.loc[i, 'vital_status']}, "
+                     f"Gender: {df.loc[i, 'gender']}",
+            'type': 'markdown'
+        }
+    })
+
 app.layout = dbc.Container([
     # 顶部Logo和标题区域
     dbc.Row([
@@ -73,6 +95,31 @@ app.layout = dbc.Container([
 
         # 右侧可视化图像生成区域
         dbc.Col([
+            html.Div([
+                # dash table_Construction
+                dash_table.DataTable(
+                    id='datatable-interactivity',
+                    columns=[
+                        {"name": i, "id": i, "deletable": True, "selectable": True} for i in df.columns
+                    ],
+                    data=df.to_dict('records'),
+                    editable=True,
+                    filter_action="native",
+                    sort_action="native",
+                    sort_mode="multi",
+                    column_selectable="single",
+                    row_selectable="multi",
+                    row_deletable=True,
+                    selected_columns=[],
+                    selected_rows=[],
+                    page_action="native",
+                    page_current=0,
+                    page_size=10,
+                    tooltip_data=tooltips,
+                    tooltip_duration=None,  # 保持工具提示一直可见
+                ),
+                html.Div(id='datatable-interactivity-container')
+            ]),
             dbc.Row(id='visualization-rows')
         ], width=9)
     ])
@@ -257,6 +304,17 @@ def update_task_content(selected_task):
     ])
 
 
+@app.callback(
+    Output('datatable-interactivity', 'style_data_conditional'),
+    Input('datatable-interactivity', 'selected_columns')
+)
+def update_styles(selected_columns):
+    return [{
+        'if': {'column_id': i},
+        'background_color': '#D2F3FF'
+    } for i in selected_columns]
+
+
 # 生成图像的回调函数
 @app.callback(
     Output('visualization-rows', 'children'),
@@ -345,13 +403,19 @@ def update_graphs(selected_vis, figures_per_row):
 
         elif vis == 'brca_waterfall':
             # 生成BRCA基因突变的瀑布图
-            top_genes = df['Hugo_Symbol'].value_counts().head(10).index
+            top_genes = df['Hugo_Symbol'].value_counts().head(20).index
             filtered_df = df[df['Hugo_Symbol'].isin(top_genes)]
             waterfall_data = filtered_df.groupby(['Hugo_Symbol', 'One_Consequence']).size().reset_index(name='Count')
             waterfall_fig = px.bar(waterfall_data, x='Hugo_Symbol', y='Count', color='One_Consequence',
                                    title='BRCA Gene Mutation Waterfall Plot')
             waterfall_fig.update_layout(xaxis_title='Gene', yaxis_title='Count')
+            # 添加折线图
+            line_data = df.groupby('age_at_initial_pathologic_diagnosis').size().reset_index(name='Mutation Count')
+            line_fig = px.line(line_data, x='age_at_initial_pathologic_diagnosis', y='Mutation Count',
+                               title='Mutation Count by Age at Initial Pathologic Diagnosis')
+            line_fig.update_layout(xaxis_title='Age at Initial Pathologic Diagnosis', yaxis_title='Mutation Count')
             figs.append(waterfall_fig)
+            figs.append(line_fig)
     # print "The visualization plots user chose"
     print(f"The plots user chose: {selected_vis}")
     # if there is no value in 'visualization-dropdown' there is no update
