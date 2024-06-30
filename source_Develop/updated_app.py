@@ -37,7 +37,7 @@ prediction_metrics_options = [
     {'label': 'd', 'value': 'D'},
     {'label': 'e', 'value': 'E'},
     {'label': 'BRCA Gene Mutation Waterfall Plot', 'value': 'brca_waterfall'}
-]
+]  # label: brca_wplot&mucnt_byage, value: Brca_wplot&mucnt_byage
 # 定义任务选项
 task_options = [
     {'label': 'Genomic Data Analysis', 'value': 'data_analysis'},
